@@ -4,8 +4,8 @@
 #include "Array2D.h"
 #include "Color.h"
 
-const unsigned int gridSizeX = 512;
-const unsigned int gridSizeY = 512;
+const unsigned int gridSizeX = 64;
+const unsigned int gridSizeY = 64;
 
 class Terrain
 {

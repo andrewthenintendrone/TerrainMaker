@@ -27,7 +27,7 @@ void Terrain::generatePerlin()
 	{
 		for (unsigned int y = 0; y < gridSizeY; y++)
 		{
-			m_heights(x, y) = PerlinNoise::getInstance().octavePerlin(x * 0.025f, y * 0.025f, 5, 0.75f);
+			m_heights(x, y) = PerlinNoise::getInstance().octavePerlin(x * 0.01f, y * 0.01f, 10, 0.5f);
 		}
 	}
 }
