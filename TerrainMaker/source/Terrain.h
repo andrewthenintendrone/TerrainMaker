@@ -2,9 +2,10 @@
 #include "Vector3.h"
 #include <string>
 #include "Array2D.h"
+#include "Color.h"
 
-const unsigned int gridSizeX = 128;
-const unsigned int gridSizeY = 128;
+const unsigned int gridSizeX = 512;
+const unsigned int gridSizeY = 512;
 
 class Terrain
 {
@@ -22,7 +23,8 @@ public:
 	void generatePerlin();
 	void generateSquared();
 
-	void writeToFile(const std::string& fileName);
+	void writeObjFile(const std::string& fileName);
+	void writePlyFile(const std::string& fileName);
 
 private:
 

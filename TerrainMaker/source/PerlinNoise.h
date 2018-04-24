@@ -6,13 +6,18 @@ class PerlinNoise
 {
 public:
 
-	PerlinNoise();
+	static PerlinNoise& getInstance();
 
-	float lerp(float a0, float a1, float w);
-	float dotGridGradient(int ix, int iy, float x, float y);
 	float perlin(float x, float y);
+	float octavePerlin(float x, float y, int octaves, float persistance);
 
 private:
+
+	PerlinNoise();
+
+	float lerp(float a, float b, float i);
+	float smoothStep(float f);
+	float dotGridGradient(int ix, int iy, float x, float y);
 
 	void defineGrid();
 

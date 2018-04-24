@@ -162,6 +162,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="source\Array2D.h" />
+    <ClInclude Include="source\Color.h" />
     <ClInclude Include="source\PerlinNoise.h" />
     <ClInclude Include="source\Terrain.h" />
     <ClInclude Include="source\Vector2.h" />
