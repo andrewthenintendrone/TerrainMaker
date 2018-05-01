@@ -1,26 +1,47 @@
 #pragma once
 #include <vector>
+#include <iostream>
 
-template <class T, size_t W, size_t H>
+template <class T>
 class Array2D
 {
 public:
-	const int width = W;
-	const int height = H;
 
-	Array2D() : buffer(width * height) {}
+	Array2D(unsigned int width = 1, unsigned int height = 1) : m_width(width), m_height(height)
+	{
+		m_buffer.resize(m_width * m_height);
+	}
 
 	const T& operator () (unsigned int x, unsigned int y) const
 	{
-		return buffer[y * width + x];
+		if (y * m_width + x < m_buffer.size())
+		{
+			return m_buffer[y * m_width + x];
+		}
+		else
+		{
+			std::cout << "Tried to access element " << x << "-" << y << " of a " << m_width << "-" << m_height << " array" << std::endl;
+			return m_buffer.front();
+		}
 	}
 
 	T& operator () (unsigned int x, unsigned int y)
 	{
-		return buffer[y * width + x];
+		if (y * m_width + x < m_buffer.size())
+		{
+			return m_buffer[y * m_width + x];
+		}
+		else
+		{
+			std::cout << "Tried to access element " << x << "-" << y << " of a " << m_width << "-" << m_height << " array" << std::endl;
+			return m_buffer.front();
+		}
 	}
 
 private:
 
-	std::vector<T> buffer;
+	unsigned int m_width;
+	unsigned int m_height;
+
+	std::vector<T> m_buffer;
 };

@@ -4,13 +4,18 @@
 #include <random>
 #include "PerlinNoise.h"
 
+Terrain::Terrain(unsigned int gridSizeX, unsigned int gridSizeY) : m_gridSizeX(gridSizeX), m_gridSizeY(gridSizeY)
+{
+	m_heights = Array2D<float>(m_gridSizeX, m_gridSizeY);
+}
+
 // randomly set heights
 void Terrain::generateRandom()
 {
 	// set each value to random between 1 and 10
-	for (unsigned int x = 0; x < gridSizeX; x++)
+	for (unsigned int x = 0; x < m_gridSizeX; x++)
 	{
-		for (unsigned int y = 0; y < gridSizeY; y++)
+		for (unsigned int y = 0; y < m_gridSizeY; y++)
 		{
 			m_heights(x, y) = rand() % 10;
 		}
@@ -23,9 +28,9 @@ void Terrain::generatePerlin()
 	float maxValue = 0;
 
 	// set each value to random perlin value
-	for (unsigned int x = 0; x < gridSizeX; x++)
+	for (unsigned int x = 0; x < m_gridSizeX; x++)
 	{
-		for (unsigned int y = 0; y < gridSizeY; y++)
+		for (unsigned int y = 0; y < m_gridSizeY; y++)
 		{
 			m_heights(x, y) = PerlinNoise::getInstance().octavePerlin(x * 0.01f, y * 0.01f, 10, 0.5f);
 		}
@@ -35,9 +40,9 @@ void Terrain::generatePerlin()
 // set heights using x^2 + y^2
 void Terrain::generateSquared()
 {
-	for (unsigned int x = 0; x < gridSizeX; x++)
+	for (unsigned int x = 0; x < m_gridSizeX; x++)
 	{
-		for (unsigned int y = 0; y < gridSizeY; y++)
+		for (unsigned int y = 0; y < m_gridSizeY; y++)
 		{
 			m_heights(x, y) = (x * x + y * y);
 		}
@@ -59,12 +64,12 @@ void Terrain::writeObjFile(const std::string& fileName)
 	outputFile << "o Terrain" << std::endl;
 
 	// calculate center point
-	m_centerPoint = Vector3(gridSizeX * m_gridScale.x * 0.5f - 0.5f, 0, gridSizeY * m_gridScale.z * 0.5f - 0.5f);
+	m_centerPoint = Vector3(m_gridSizeX * m_gridScale.x * 0.5f - 0.5f, 0, m_gridSizeY * m_gridScale.z * 0.5f - 0.5f);
 
 	// write verts
-	for (unsigned int x = 0; x < gridSizeX; x++)
+	for (unsigned int x = 0; x < m_gridSizeX; x++)
 	{
-		for (unsigned int y = 0; y < gridSizeY; y++)
+		for (unsigned int y = 0; y < m_gridSizeY; y++)
 		{
 			outputFile << "v " << x * m_gridScale.x - m_centerPoint.x << " ";
 			outputFile << m_heights(x, y) * m_gridScale.y - m_centerPoint.y << " ";
@@ -73,16 +78,16 @@ void Terrain::writeObjFile(const std::string& fileName)
 	}
 
 	// write tris
-	for (unsigned int x = 0, offset = 0; x < gridSizeX; x++)
+	for (unsigned int x = 0, offset = 0; x < m_gridSizeX; x++)
 	{
-		for (unsigned int y = 0; y < gridSizeY; y++, offset++)
+		for (unsigned int y = 0; y < m_gridSizeY; y++, offset++)
 		{
-			if (x < gridSizeX - 1 && y < gridSizeY - 1)
+			if (x < m_gridSizeX - 1 && y < m_gridSizeY - 1)
 			{
 				unsigned int p1 = offset + 1;
 				unsigned int p2 = offset + 2;
-				unsigned int p3 = offset + gridSizeX + 1;
-				unsigned int p4 = offset + gridSizeX + 2;
+				unsigned int p3 = offset + m_gridSizeX + 1;
+				unsigned int p4 = offset + m_gridSizeX + 2;
 
 
 				outputFile << "f " << p1 << "//" << p2 << " ";
@@ -114,9 +119,9 @@ void Terrain::writePlyFile(const std::string& fileName)
 	float highest = -1000;
 	float lowest = 1000;
 
-	for (int x = 0; x < gridSizeX; x++)
+	for (int x = 0; x < m_gridSizeX; x++)
 	{
-		for (int y = 0; y < gridSizeY; y++)
+		for (int y = 0; y < m_gridSizeY; y++)
 		{
 			highest = std::max(m_heights(x, y), highest);
 			lowest = std::min(m_heights(x, y), lowest);
@@ -131,7 +136,7 @@ void Terrain::writePlyFile(const std::string& fileName)
 	outputFile << "ply\n";
 	outputFile << "format ascii 1.0\n";
 	outputFile << "comment created using TerrainMaker\n";
-	outputFile << "element vertex " << gridSizeX * gridSizeY << std::endl;
+	outputFile << "element vertex " << m_gridSizeX * m_gridSizeY << std::endl;
 	outputFile << "property float x\n";
 	outputFile << "property float y\n";
 	outputFile << "property float z\n";
@@ -139,17 +144,17 @@ void Terrain::writePlyFile(const std::string& fileName)
 	outputFile << "property uchar red\n";
 	outputFile << "property uchar green\n";
 	outputFile << "property uchar blue\n";
-	outputFile << "element face " << (gridSizeX - 1) * (gridSizeY - 1) << std::endl;
+	outputFile << "element face " << (m_gridSizeX - 1) * (m_gridSizeY - 1) * 2 << std::endl; // x2 whn using tris
 	outputFile << "property list uchar int vertex_indices\n";
 	outputFile << "end_header\n";
 
 	// calculate center point
-	m_centerPoint = Vector3(gridSizeX * m_gridScale.x * 0.5f - 0.5f, 0, gridSizeY * m_gridScale.z * 0.5f - 0.5f);
+	m_centerPoint = Vector3(m_gridSizeX * m_gridScale.x * 0.5f - 0.5f, 0, m_gridSizeY * m_gridScale.z * 0.5f - 0.5f);
 
 	// write verts / colors
-	for (unsigned int x = 0; x < gridSizeX; x++)
+	for (unsigned int x = 0; x < m_gridSizeX; x++)
 	{
-		for (unsigned int y = 0; y < gridSizeY; y++)
+		for (unsigned int y = 0; y < m_gridSizeY; y++)
 		{
 			outputFile << x * m_gridScale.x - m_centerPoint.x << " ";
 			outputFile << y * m_gridScale.z - m_centerPoint.z << " ";
@@ -177,18 +182,23 @@ void Terrain::writePlyFile(const std::string& fileName)
 	}
 
 	// write tris
-	for (unsigned int x = 0, offset = 0; x < gridSizeX; x++)
+	for (unsigned int x = 0, offset = 0; x < m_gridSizeX; x++)
 	{
-		for (unsigned int y = 0; y < gridSizeY; y++, offset++)
+		for (unsigned int y = 0; y < m_gridSizeY; y++, offset++)
 		{
-			if (x < gridSizeX - 1 && y < gridSizeY - 1)
+			if (x < m_gridSizeX - 1 && y < m_gridSizeY - 1)
 			{
 				unsigned int p1 = offset;
 				unsigned int p2 = offset + 1;
-				unsigned int p3 = offset + gridSizeX;
-				unsigned int p4 = offset + gridSizeX + 1;
+				unsigned int p3 = offset + m_gridSizeX;
+				unsigned int p4 = offset + m_gridSizeX + 1;
 
-				outputFile << "4 " << p1 << " " << p3 << " " << p4 << " " << p2 <<std::endl;
+				// quads
+				// outputFile << "4 " << p1 << " " << p3 << " " << p4 << " " << p2 <<std::endl;
+
+				// tris
+				outputFile << "3 " << p1 << " " << p3 << " " << p4 << std::endl;
+				outputFile << "3 " << p1 << " " << p4 << " " << p2 << std::endl;
 			}
 		}
 	}

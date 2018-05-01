@@ -93,6 +93,8 @@ float PerlinNoise::octavePerlin(float x, float y, int octaves, float persistance
 // defines the vector grid
 void PerlinNoise::defineGrid()
 {
+	m_vectorGrid = Array2D<Vector2>(256, 256);
+
 	for (int x = 0; x < 256; x++)
 	{
 		for (int y = 0; y < 256; y++)

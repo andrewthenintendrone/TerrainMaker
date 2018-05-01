@@ -4,14 +4,11 @@
 #include "Array2D.h"
 #include "Color.h"
 
-const unsigned int gridSizeX = 64;
-const unsigned int gridSizeY = 64;
-
 class Terrain
 {
 public:
 
-	Terrain() {};
+	Terrain(unsigned int gridSizeX = 1, unsigned int gridSizeY = 1);
 
 	// getters
 	Vector3 getGridScale() const { return m_gridScale; }
@@ -28,6 +25,9 @@ public:
 
 private:
 
+	unsigned int m_gridSizeX;
+	unsigned int m_gridSizeY;
+
 	// scale of final mesh
 	Vector3 m_gridScale = Vector3(1, 1, 1);
 
@@ -35,5 +35,5 @@ private:
 	Vector3 m_centerPoint = Vector3(5, 5, 5);
 
 	// height values
-	Array2D<float, gridSizeX, gridSizeY> m_heights;
+	Array2D<float> m_heights;
 };
