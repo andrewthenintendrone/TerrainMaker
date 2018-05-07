@@ -47,22 +47,23 @@ void Terrain::generateDiamondSquare(int featureSize)
 	generateRandom();
 
 	// seed corners
-	/*m_heights(0, 0) = 0;
+	m_heights(0, 0) = 0;
 	m_heights(m_gridSizeX - 1, 0) = 0;
 	m_heights(0, m_gridSizeY - 1) = 0;
-	m_heights(m_gridSizeX - 1, m_gridSizeY - 1) = 0;*/
+	m_heights(m_gridSizeX - 1, m_gridSizeY - 1) = 0;
 
 	int sampleSize = featureSize;
 
 	float scale = 1.0f;
 
-	while (sampleSize > 1)
-	{
-		diamondSquare(sampleSize, scale);
+	//while (sampleSize > 1)
+	//{
+		//diamondSquare(sampleSize, scale);
+	diamondSquare2(0, 0, m_gridSizeX - 1, m_gridSizeY - 1, 0.5f, 20);
 
 		sampleSize /= 2;
 		scale /= 2.0f;
-	}
+	//}
 }
 
 // write to obj file
@@ -244,6 +245,43 @@ void Terrain::sampleDiamond(int x, int y, int size, float value)
 	double d = sample(x, y + hs);
 
 	setSample(x, y, ((a + b + c + d) / 4.0) + value);
+}
+
+void Terrain::diamondSquare2(unsigned x1, unsigned y1, unsigned x2, unsigned y2, float range, unsigned level)
+{
+	if (level < 1)
+		return;
+
+	// diamonds
+	for (unsigned i = x1 + level; i < x2; i += level)
+	{
+		for (unsigned j = y1 + level; j < y2; j += level)
+		{
+			float a = m_heights(i - level, j - level);
+			float b = m_heights(i, j - level);
+			float c = m_heights(i - level, j);
+			float d = m_heights(i, j);
+			float e = m_heights(i - level / 2, j - level / 2) = (a + b + c + d) / 4 + frand(-range, range);
+		}
+	}
+
+	// squares
+	for (unsigned i = x1 + 2 * level; i < x2; i += level)
+	{
+		for (unsigned j = y1 + 2 * level; j < y2; j += level)
+		{
+			float a = m_heights(i - level, j - level);
+			float b = m_heights(i, j - level);
+			float c = m_heights(i - level, j);
+			float d = m_heights(i, j);
+			float e = m_heights(i - level / 2, j - level / 2);
+
+			float f = m_heights(i - level, j - level / 2) = (a + c + e + m_heights(i - 3 * level / 2, j - level / 2)) / 4 + frand(-range, range);
+			float g = m_heights(i - level / 2, j - level) = (a + b + e + m_heights(i - level / 2, j - 3 * level / 2)) / 4 + frand(-range, range);
+		}
+	}
+
+	diamondSquare2(x1, y1, x2, y2, range / 2, level / 2);
 }
 
 float Terrain::sample(int x, int y)

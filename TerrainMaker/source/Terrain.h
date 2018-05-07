@@ -1,4 +1,5 @@
 #pragma once
+#include "Vector2.h"
 #include "Vector3.h"
 #include <string>
 #include "Array2D.h"
@@ -41,6 +42,8 @@ private:
 
 	void sampleSquare(int x, int y, int size, float value);
 	void sampleDiamond(int x, int y, int size, float value);
+
+	void diamondSquare2(unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2, float range, unsigned int level);
 
 	float sample(int x, int y);
 	void setSample(int x, int y, float sample);
