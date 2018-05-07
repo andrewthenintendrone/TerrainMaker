@@ -18,7 +18,7 @@ public:
 
 	void generateRandom();
 	void generatePerlin();
-	void generateSquared();
+	void generateDiamondSquare(int featureSize);
 
 	void writeObjFile(const std::string& fileName);
 	void writePlyFile(const std::string& fileName);
@@ -36,4 +36,12 @@ private:
 
 	// height values
 	Array2D<float> m_heights;
+
+	void diamondSquare(int stepSize, float scale);
+
+	void sampleSquare(int x, int y, int size, float value);
+	void sampleDiamond(int x, int y, int size, float value);
+
+	float sample(int x, int y);
+	void setSample(int x, int y, float sample);
 };

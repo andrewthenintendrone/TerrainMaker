@@ -4,6 +4,12 @@
 #include <random>
 #include "PerlinNoise.h"
 
+float frand(float min, float max)
+{
+	float f = (float)rand() / (RAND_MAX + 1);
+	return min + f * (max - min);
+}
+
 Terrain::Terrain(unsigned int gridSizeX, unsigned int gridSizeY) : m_gridSizeX(gridSizeX), m_gridSizeY(gridSizeY)
 {
 	m_heights = Array2D<float>(m_gridSizeX, m_gridSizeY);
@@ -17,7 +23,7 @@ void Terrain::generateRandom()
 	{
 		for (unsigned int y = 0; y < m_gridSizeY; y++)
 		{
-			m_heights(x, y) = rand() % 10;
+			m_heights(x, y) = frand(-1, 1);
 		}
 	}
 }
@@ -25,8 +31,6 @@ void Terrain::generateRandom()
 // randomly set heights using Perlin Noise
 void Terrain::generatePerlin()
 {
-	float maxValue = 0;
-
 	// set each value to random perlin value
 	for (unsigned int x = 0; x < m_gridSizeX; x++)
 	{
@@ -37,15 +41,27 @@ void Terrain::generatePerlin()
 	}
 }
 
-// set heights using x^2 + y^2
-void Terrain::generateSquared()
+// set heights using the diamond square algorithm
+void Terrain::generateDiamondSquare(int featureSize)
 {
-	for (unsigned int x = 0; x < m_gridSizeX; x++)
+	generateRandom();
+
+	// seed corners
+	/*m_heights(0, 0) = 0;
+	m_heights(m_gridSizeX - 1, 0) = 0;
+	m_heights(0, m_gridSizeY - 1) = 0;
+	m_heights(m_gridSizeX - 1, m_gridSizeY - 1) = 0;*/
+
+	int sampleSize = featureSize;
+
+	float scale = 1.0f;
+
+	while (sampleSize > 1)
 	{
-		for (unsigned int y = 0; y < m_gridSizeY; y++)
-		{
-			m_heights(x, y) = (x * x + y * y);
-		}
+		diamondSquare(sampleSize, scale);
+
+		sampleSize /= 2;
+		scale /= 2.0f;
 	}
 }
 
@@ -115,21 +131,6 @@ void Terrain::writePlyFile(const std::string& fileName)
 		return;
 	}
 
-	// calculate lowest / highest points
-	float highest = -1000;
-	float lowest = 1000;
-
-	for (int x = 0; x < m_gridSizeX; x++)
-	{
-		for (int y = 0; y < m_gridSizeY; y++)
-		{
-			highest = std::max(m_heights(x, y), highest);
-			lowest = std::min(m_heights(x, y), lowest);
-		}
-	}
-
-	float diff = highest - lowest;
-
 	// write terrain
 
 	// write ply file header
@@ -140,11 +141,11 @@ void Terrain::writePlyFile(const std::string& fileName)
 	outputFile << "property float x\n";
 	outputFile << "property float y\n";
 	outputFile << "property float z\n";
-	// color
-	outputFile << "property uchar red\n";
-	outputFile << "property uchar green\n";
-	outputFile << "property uchar blue\n";
-	outputFile << "element face " << (m_gridSizeX - 1) * (m_gridSizeY - 1) * 2 << std::endl; // x2 whn using tris
+	// color (currently unused)
+	//outputFile << "property uchar red\n";
+	//outputFile << "property uchar green\n";
+	//outputFile << "property uchar blue\n";
+	outputFile << "element face " << (m_gridSizeX - 1) * (m_gridSizeY - 1) << std::endl; // x2 whn using tris
 	outputFile << "property list uchar int vertex_indices\n";
 	outputFile << "end_header\n";
 
@@ -158,26 +159,7 @@ void Terrain::writePlyFile(const std::string& fileName)
 		{
 			outputFile << x * m_gridScale.x - m_centerPoint.x << " ";
 			outputFile << y * m_gridScale.z - m_centerPoint.z << " ";
-			outputFile << m_heights(x, y) * m_gridScale.y - m_centerPoint.y << " ";
-
-			Color currentColor;
-
-			if (m_heights(x, y) <= lowest + diff * 0.33f)
-			{
-				currentColor = Color(0x7e3f12ff);
-			}
-			else if (m_heights(x, y) <= lowest + diff * 0.66f)
-			{
-				currentColor = Color(0xffc0cbff);
-			}
-			else
-			{
-				currentColor = Color(0xfffcf8ff);
-			}
-
-			outputFile << (int)currentColor.r << " ";
-			outputFile << (int)currentColor.g << " ";
-			outputFile << (int)currentColor.b << std::endl;
+			outputFile << m_heights(x, y) * m_gridScale.y - m_centerPoint.y << std::endl;
 		}
 	}
 
@@ -194,14 +176,82 @@ void Terrain::writePlyFile(const std::string& fileName)
 				unsigned int p4 = offset + m_gridSizeX + 1;
 
 				// quads
-				// outputFile << "4 " << p1 << " " << p3 << " " << p4 << " " << p2 <<std::endl;
+				outputFile << "4 " << p1 << " " << p3 << " " << p4 << " " << p2 <<std::endl;
 
 				// tris
-				outputFile << "3 " << p1 << " " << p3 << " " << p4 << std::endl;
-				outputFile << "3 " << p1 << " " << p4 << " " << p2 << std::endl;
+				/*outputFile << "3 " << p1 << " " << p3 << " " << p4 << std::endl;
+				outputFile << "3 " << p1 << " " << p4 << " " << p2 << std::endl;*/
 			}
 		}
 	}
 
 	outputFile.close();
+}
+
+void Terrain::diamondSquare(int stepsize, float scale)
+{
+	int halfstep = stepsize / 2;
+
+	for (int y = halfstep; y < m_gridSizeY + halfstep; y += stepsize)
+	{
+		for (int x = halfstep; x < m_gridSizeX + halfstep; x += stepsize)
+		{
+			sampleSquare(x, y, stepsize, frand(-scale, scale));
+		}
+	}
+
+	for (int y = 0; y < m_gridSizeY; y += stepsize)
+	{
+		for (int x = 0; x < m_gridSizeX; x += stepsize)
+		{
+			sampleDiamond(x + halfstep, y, stepsize, frand(-scale, scale));
+			sampleDiamond(x, y + halfstep, stepsize, frand(-scale, scale));
+		}
+	}
+}
+
+void Terrain::sampleSquare(int x, int y, int size, float value)
+{
+	int hs = size / 2;
+
+	// a     b 
+	//
+	//    x
+	//
+	// c     d
+
+	double a = sample(x - hs, y - hs);
+	double b = sample(x + hs, y - hs);
+	double c = sample(x - hs, y + hs);
+	double d = sample(x + hs, y + hs);
+
+	setSample(x, y, ((a + b + c + d) / 4.0) + value);
+}
+
+void Terrain::sampleDiamond(int x, int y, int size, float value)
+{
+	int hs = size / 2;
+
+	//   c
+	//
+	//a  x  b
+	//
+	//   d
+
+	double a = sample(x - hs, y);
+	double b = sample(x + hs, y);
+	double c = sample(x, y - hs);
+	double d = sample(x, y + hs);
+
+	setSample(x, y, ((a + b + c + d) / 4.0) + value);
+}
+
+float Terrain::sample(int x, int y)
+{
+	return (m_heights(x & (m_gridSizeX - 1), y & (m_gridSizeY - 1)));
+}
+
+void Terrain::setSample(int x, int y, float value)
+{
+	m_heights(x & (m_gridSizeX - 1), y & (m_gridSizeY - 1)) = value;
 }
