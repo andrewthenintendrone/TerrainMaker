@@ -21,5 +21,5 @@ private:
 
 	void defineGrid();
 
-	Array2D<Vector2> m_vectorGrid;
+	Array2D<Vector2> m_vectorGrid = Array2D<Vector2>();
 };
