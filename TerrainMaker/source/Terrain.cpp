@@ -36,7 +36,7 @@ void Terrain::generatePerlin()
 	{
 		for (unsigned int y = 0; y < m_gridSizeY; y++)
 		{
-			m_heights(x, y) = PerlinNoise::getInstance().octavePerlin(x * 0.01f, y * 0.01f, 10, 0.5f);
+			m_heights(x, y) = PerlinNoise::getInstance().octavePerlin(x * 0.01f, y * 0.01f, 10, 0.5f) * m_gridScale.y;
 		}
 	}
 }
@@ -122,7 +122,7 @@ void Terrain::writePlyFile(const std::string& fileName)
 	outputFile << "end_header\n";
 
 	// calculate center point
-	m_centerPoint = Vector3(m_gridSizeX * m_gridScale.x * 0.5f - 0.5f, 0, m_gridSizeY * m_gridScale.z * 0.5f - 0.5f);
+	m_centerPoint = Vector3(m_gridSizeX * m_gridScale.x * 0.5f - 0.5f, 0.0f, m_gridSizeY * m_gridScale.z * 0.5f - 0.5f);
 
 	// write verts / colors
 	for (unsigned int x = 0; x < m_gridSizeX; x++)
@@ -131,12 +131,12 @@ void Terrain::writePlyFile(const std::string& fileName)
 		{
 			outputFile << x * m_gridScale.x - m_centerPoint.x << " ";
 			outputFile << y * m_gridScale.z - m_centerPoint.z << " ";
-			outputFile << m_heights(x, y) * m_gridScale.y - m_centerPoint.y << std::endl;
+			outputFile << m_heights(x, y) - m_centerPoint.y << " " << std::endl;
 		}
 	}
 
 	// write tris
-	for (unsigned int x = 0, offset = 0; x < m_gridSizeX; x++)
+	for (unsigned int x = 0, offset = 0; x < m_gridSizeY; x++)
 	{
 		for (unsigned int y = 0; y < m_gridSizeY; y++, offset++)
 		{
@@ -144,8 +144,8 @@ void Terrain::writePlyFile(const std::string& fileName)
 			{
 				unsigned int p1 = offset;
 				unsigned int p2 = offset + 1;
-				unsigned int p3 = offset + m_gridSizeX;
-				unsigned int p4 = offset + m_gridSizeX + 1;
+				unsigned int p3 = offset + m_gridSizeY;
+				unsigned int p4 = offset + m_gridSizeY + 1;
 
 				// tris
 				outputFile << "3 " << p1 << " " << p3 << " " << p4 << std::endl;

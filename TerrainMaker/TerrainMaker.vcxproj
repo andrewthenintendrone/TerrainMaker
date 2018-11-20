@@ -162,6 +162,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="source\Array2D.h" />
+    <ClInclude Include="source\Bitmask.h" />
     <ClInclude Include="source\Color.h" />
     <ClInclude Include="source\PerlinNoise.h" />
     <ClInclude Include="source\Terrain.h" />
@@ -170,6 +171,7 @@
     <ClInclude Include="source\Vector4.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="source\Bitmask.cpp" />
     <ClCompile Include="source\main.cpp" />
     <ClCompile Include="source\PerlinNoise.cpp" />
     <ClCompile Include="source\Terrain.cpp" />
