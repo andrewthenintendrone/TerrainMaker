@@ -80,6 +80,10 @@ public:
 		}
 	}
 
+	unsigned int getWidth() const { return m_width; }
+	unsigned int getHeight() const { return m_height; }
+	unsigned int getTotalSize() const { return m_totalSize; }
+
 private:
 
 	unsigned int m_width;

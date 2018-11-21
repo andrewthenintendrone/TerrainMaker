@@ -18,15 +18,14 @@ public:
 	void setGridScale(const Vector3 gridScale) { m_gridScale = gridScale; }
 
 	void generateRandom();
-	void generatePerlin();
+	void generatePerlin(float xScale, float yScale);
+	void generateOctavePerlin(float xScale, float yScale, int octaves, float persistance);
+	void generateSinWaves(float xScale, float yScale);
 
 	void writeObjFile(const std::string& fileName);
 	void writePlyFile(const std::string& fileName);
 
 private:
-
-	unsigned int m_gridSizeX;
-	unsigned int m_gridSizeY;
 
 	// scale of final mesh
 	Vector3 m_gridScale = Vector3(1, 1, 1);

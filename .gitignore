@@ -76,7 +76,6 @@ artifacts/
 *.pidb
 *.svclog
 *.scc
-*.ply
 
 # Chutzpah Test files
 _Chutzpah*
@@ -301,3 +300,6 @@ __pycache__/
 *.xsd.cs
 *.idb
 *.tlog
+
+# model files
+*.ply
